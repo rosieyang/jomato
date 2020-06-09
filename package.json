@@ -4,8 +4,8 @@
   "description": "Backend API for exploring local restaurants",
   "main": "app.js",
   "scripts": {
-    "start": "NODE_ENV=production node app.js",
-    "dev": "nodemon app.js"
+    "start": "NODE_ENV=production nodemon server.js",
+    "dev": "nodemon server.js"
   },
   "repository": {
     "type": "git",
