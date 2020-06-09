@@ -4,11 +4,10 @@ const colors = require('colors');
 
 const app = express();
 
-app.get('/', (req, res) => {
-  res.status(200).json({
-    status: 'success'
-  });
-});
+const restaurantRouter = require('./routes/restaurantRoutes');
+
+// ========== ROUTES ==========
+app.use('/api/restaurants', restaurantRouter);
 
 const PORT = process.env.PORT || 3000;
 
