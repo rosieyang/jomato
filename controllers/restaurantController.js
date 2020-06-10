@@ -1,8 +1,9 @@
+const AppError = require('../utils/appError');
 const Restaurant = require('../models/restaurantModel');
 
-// == Description ===== Get all restaurants
-// == Route =========== GET /api/restaurants
-// == Access ========== Public
+// @desc        Get all restaurants
+// @route       GET /api/restaurants
+// @access      Public
 exports.getAllRestaurants = async (req, res, next) => {
   const restaurants = await Restaurant.find();
 
@@ -13,17 +14,14 @@ exports.getAllRestaurants = async (req, res, next) => {
   });
 }
 
-// == Description ===== Get single restaurant
-// == Route =========== GET /api/restaurants/:id
-// == Access ========== Public
+// @desc        Get single restaurant
+// @route       GET /api/restaurants/:id
+// @access      Public
 exports.getRestaurant = async (req, res, next) => {
   const restaurant = await Restaurant.findById(req.params.id);
 
   if (!restaurant) {
-    res.status(404).json({
-      status: 'fail',
-      message: `A restaurant with the id of '${req.params.id}' is not found.`
-    });
+    return next(new AppError(`A restaurant with the id of '${req.params.id}' is not found.`, 404));
   }
 
   res.status(200).json({
@@ -32,9 +30,9 @@ exports.getRestaurant = async (req, res, next) => {
   });
 }
 
-// == Description ===== Create new restaurant
-// == Route =========== POST /api/restaurants
-// == Access ========== Private
+// @desc        Create new restaurant
+// @route       POST /api/restaurants
+// @access      Private
 exports.createRestaurant = async (req, res, next) => {
   const restaurant = await Restaurant.create(req.body);
 
@@ -44,9 +42,9 @@ exports.createRestaurant = async (req, res, next) => {
   });
 }
 
-// == Description ===== Update restaurant
-// == Route =========== PATCH /api/restaurants/:id
-// == Access ========== Private
+// @desc        Update restaurant
+// @route       PATCH /api/restaurants/:id
+// @access      Private
 exports.updateRestaurant = async (req, res, next) => {
   const restaurant = await Restaurant.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
@@ -54,10 +52,7 @@ exports.updateRestaurant = async (req, res, next) => {
   });
 
   if (!restaurant) {
-    res.status(404).json({
-      status: 'fail',
-      message: `A restaurant with the id of '${req.params.id}' is not found.`
-    });
+    return next(new AppError(`A restaurant with the id of '${req.params.id}' is not found.`, 404));
   }
 
   res.status(200).json({
@@ -66,21 +61,18 @@ exports.updateRestaurant = async (req, res, next) => {
   });
 }
 
-// == Description ===== Delete restaurant
-// == Route =========== DELETE /api/restaurants/:id
-// == Access ========== Private (only for owner & admin)
+// @desc        Delete restaurant
+// @route       DELETE /api/restaurants/:id
+// @access      Private (only for owner & admin)
 exports.deleteRestaurant = async (req, res, next) => {
   const restaurant = await Restaurant.findByIdAndDelete(req.params.id);
 
   if (!restaurant) {
-    res.status(404).json({
-      status: 'fail',
-      message: `A restaurant with the id of '${req.params.id}' is not found.`
-    });
+    return next(new AppError(`A restaurant with the id of '${req.params.id}' is not found.`, 404));
   }
 
   res.status(200).json({
     status: 'success',
-    data: `A restaurant with the id of '${req.params.id}' has been deleted.`
+    data: restaurant
   });
 }
