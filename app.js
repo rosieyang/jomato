@@ -7,7 +7,12 @@ const app = express();
 
 const restaurantRouter = require('./routes/restaurantRoutes');
 
+// Body parser
+app.use(express.json());
+
 // ========== GLOBAL MIDDLEWARE ==========
+
+// Logger for development mode
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
