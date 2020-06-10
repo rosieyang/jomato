@@ -1,5 +1,12 @@
 const mongoose = require('mongoose');
 
+// ========== ERROR HANDLER (Uncaught Exception) ==========
+process.on('uncaughtException', err => {
+  console.log('💥 [Uncaught Exception] Shutting down... 💥'.red.bold);
+  console.log(`${err.name}: ${err.message}`.red);
+  process.exit(1);
+});
+
 const app = require('./app');
 
 // ========== CONNECT TO DB ==========
@@ -23,10 +30,10 @@ const server = app.listen(PORT, () => {
   console.log(`🎉 Server running in ${process.env.NODE_ENV.toUpperCase()} mode on port ${PORT} 🎉 `.bgCyan.black.bold);
 });
 
-// ========== ERROR HANDLER ==========
+// ========== ERROR HANDLER (Unhandled Rejection) ==========
 process.on('unhandledRejection', err => {
-  console.log('💥 [Unhandled rejection] Shutting down... 💥'.red.bold);
-  console.log(`Error: ${err.name} (${err.message})`.red);
+  console.log('💥 [Unhandled Rejection] Shutting down... 💥'.red.bold);
+  console.log(`${err.name}: ${err.message}`.red);
 
   // Close server & exit process
   server.close(() => process.exit(1));
