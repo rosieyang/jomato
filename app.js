@@ -4,6 +4,7 @@ const colors = require('colors');
 const morgan = require('morgan');
 
 const AppError = require('./utils/appError');
+const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
 
@@ -26,5 +27,7 @@ app.use('/api/restaurants', restaurantRouter);
 app.all('*', (req, res, next) => {
   next(new AppError(`🔥 Can't find route '${req.originalUrl}' on this server!`, 404));
 });
+
+app.use(errorHandler);
 
 module.exports = app;
