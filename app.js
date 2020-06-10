@@ -3,6 +3,8 @@ const express = require('express');
 const colors = require('colors');
 const morgan = require('morgan');
 
+const AppError = require('./utils/appError');
+
 const app = express();
 
 const restaurantRouter = require('./routes/restaurantRoutes');
@@ -19,5 +21,10 @@ if (process.env.NODE_ENV === 'development') {
 
 // ========== ROUTES ==========
 app.use('/api/restaurants', restaurantRouter);
+
+// Handle unhandled routes
+app.all('*', (req, res, next) => {
+  next(new AppError(`🔥 Can't find route '${req.originalUrl}' on this server!`, 404));
+});
 
 module.exports = app;
