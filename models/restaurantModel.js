@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
+const geocoder = require('../utils/geocoder');
 
 const restaurantSchema = new mongoose.Schema({
   name: {
@@ -89,6 +90,24 @@ const restaurantSchema = new mongoose.Schema({
 // Create URL-friendly slug from the name before save a document
 restaurantSchema.pre('save', async function () {
   this.slug = await slugify(this.name, { lower: true });
+});
+
+// Create formatted location with geocoder
+restaurantSchema.pre('save', async function () {
+  const loc = await geocoder.geocode(this.address);
+
+  this.location = {
+    type: 'Point',
+    coordinates: [loc[0].longitude, loc[0].latitude],
+    formattedAddress: loc[0].formattedAddress,
+    street: loc[0].streetName,
+    city: loc[0].city,
+    state: loc[0].stateCode,
+    zipcode: loc[0].zipcode,
+    country: loc[0].countryCode
+  }
+
+  this.address = undefined;
 });
 
 module.exports = mongoose.model('Restaurant', restaurantSchema);
