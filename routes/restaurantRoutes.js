@@ -4,10 +4,13 @@ const {
   getRestaurant,
   createRestaurant,
   updateRestaurant,
-  deleteRestaurant
+  deleteRestaurant,
+  getRestaurantsWithin
 } = require('../controllers/restaurantController');
 
 const router = express.Router();
+
+router.get('/within/:distance/:unit/near/:latlng', getRestaurantsWithin);
 
 router
   .route('/')

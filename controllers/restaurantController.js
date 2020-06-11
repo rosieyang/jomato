@@ -77,3 +77,32 @@ exports.deleteRestaurant = asyncHandler(async (req, res, next) => {
     data: restaurant
   });
 });
+
+// @desc        Get restaurants within distance near point
+// @route       GET /api/restaurants/within/:distance/:unit/near/:latlng
+// @route       ex) /api/restaurants/within/10/km/near/-33.873,151.207
+// @access      Public
+exports.getRestaurantsWithin = asyncHandler(async (req, res, next) => {
+  const { distance, unit, latlng } = req.params;
+  const [lat, lng] = latlng.split(',');
+
+  if (!lat || !lng) {
+    next(new AppError('Please provide latitude and longitude of a point', 400));
+  }
+
+  if (unit !== 'km' && unit !== 'mi') {
+    next(new AppError('Please provide unit in km(kilometres) or mi(miles)', 400));
+  }
+  
+  const radius = (unit === 'km') ? distance / 6378.16 : distance / 3963.2;
+
+  const restaurants = await Restaurant.find({
+    location: { $geoWithin: { $centerSphere: [[lng, lat], radius] } }
+  });
+
+  res.status(200).json({
+    status: 'success',
+    count: restaurants.length,
+    data: restaurants
+  });
+});
