@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const slugify = require('slugify');
 
 const restaurantSchema = new mongoose.Schema({
   name: {
@@ -83,6 +84,11 @@ const restaurantSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   }
+});
+
+// Create URL-friendly slug from the name before save a document
+restaurantSchema.pre('save', async function () {
+  this.slug = await slugify(this.name, { lower: true });
 });
 
 module.exports = mongoose.model('Restaurant', restaurantSchema);
