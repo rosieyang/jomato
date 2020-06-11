@@ -12,9 +12,7 @@ const restaurantSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
-  website: {
-    type: String,
-  },
+  website: String,
   phone: String,
   address: {
     type: String,
@@ -53,7 +51,7 @@ const restaurantSchema = new mongoose.Schema({
     type: Number,
     min: [1, 'Rating must be above 1.0'],
     max: [5, 'Rating must be below 5.0'],
-    default: 0
+    default: 1
   },
   ratingsQuantity: {
     type: Number,
