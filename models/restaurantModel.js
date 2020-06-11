@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const _ = require('lodash');
 const slugify = require('slugify');
 const geocoder = require('../utils/geocoder');
 
@@ -37,15 +38,13 @@ const restaurantSchema = new mongoose.Schema({
     zipcode: String,
     country: String
   },
-  cityCountry: String,
+  suburb: {
+    type: String,
+    required: [true, 'Please add a suburb where a restaurant is located']
+  },
   cuisine: {
     type: String,
-    enum: ['Modern Australian', 'Italian', 'Burger', 'Pizza', 'Sandwich', 'Cafe', 'Korean', 'Indian', 'Thai', 'Vietnamese', 'Turkish', 'Chinese', 'Malaysian', 'Japanese', 'Greek', 'Seafood'],
     required: [true, 'Please add a cuisine']
-  },
-  atmosphere: {
-    type: String,
-    enum: ['casual', 'cosy']
   },
   imageCover: String,
   images: [String],
@@ -87,6 +86,13 @@ const restaurantSchema = new mongoose.Schema({
   }
 });
 
+// Formalize values for better consistency
+restaurantSchema.pre('save', async function () {
+  this.name = await _.startCase(this.name);
+  this.suburb = await _.startCase(_.toLower(this.suburb));
+  this.cuisine = await _.capitalize(this.cuisine);
+});
+
 // Create URL-friendly slug from the name before save a document
 restaurantSchema.pre('save', async function () {
   this.slug = await slugify(this.name, { lower: true });
@@ -107,6 +113,7 @@ restaurantSchema.pre('save', async function () {
     country: loc[0].countryCode
   }
 
+  // Don't save address in DB
   this.address = undefined;
 });
 
