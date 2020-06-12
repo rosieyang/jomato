@@ -106,3 +106,41 @@ exports.getRestaurantsWithin = asyncHandler(async (req, res, next) => {
     data: restaurants
   });
 });
+
+// @desc        Get distances from point to all restaurants
+// @route       GET /api/restaurants/distances-from/:latlng/unit/:unit
+// @route       ex) /api/restaurants/distances-from/-33.873,151.207/unit/km
+// @access      Public
+exports.getDistances = asyncHandler(async (req, res, next) => {
+  const { latlng, unit } = req.params;
+  const [lat, lng] = latlng.split(',');
+
+  if (!lat || !lng) {
+    next(new AppError('Please provide latitude and longitude of a point', 400));
+  }
+
+  if (unit !== 'km' && unit !== 'mi') {
+    next(new AppError('Please provide unit in km(kilometres) or mi(miles)', 400));
+  }
+
+  const distances = await Restaurant.aggregate([
+    {
+      $geoNear: {
+        near: { type: 'Point', coordinates: [lng * 1, lat * 1] },
+        distanceField: 'distance',
+        distanceMultiplier: (unit === 'km') ? 0.001 : 0.000621371
+      }
+    },
+    {
+      $project: {
+        name: 1,
+        distance: 1
+      }
+    }
+  ]);
+
+  res.status(200).json({
+    status: 'success',
+    data: distances
+  });
+});
