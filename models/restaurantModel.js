@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const _ = require('lodash');
 const slugify = require('slugify');
 const geocoder = require('../utils/geocoder');
 
@@ -89,8 +88,8 @@ const restaurantSchema = new mongoose.Schema({
 // Formalize values for better consistency
 restaurantSchema.pre('save', async function () {
   this.name = await this.name.split(' ').map(el => el.charAt(0).toUpperCase() + el.slice(1)).join(' ');
-  this.suburb = await _.startCase(_.toLower(this.suburb));
-  this.cuisine = await _.capitalize(this.cuisine);
+  this.suburb = await this.suburb.split(' ').map(el => el.charAt(0).toUpperCase() + el.slice(1).toLowerCase()).join(' ');
+  this.cuisine = await this.cuisine.charAt(0).toUpperCase() + this.cuisine.slice(1).toLowerCase();
 });
 
 // Create URL-friendly slug from the name before save a document
