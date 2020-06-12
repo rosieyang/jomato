@@ -87,8 +87,13 @@ const restaurantSchema = new mongoose.Schema({
 
 // Formalize values for better consistency
 restaurantSchema.pre('save', async function () {
+  // ex) grilled BURGER house -> Grilled BURGER House
   this.name = await this.name.split(' ').map(el => el.charAt(0).toUpperCase() + el.slice(1)).join(' ');
+
+  // ex) BONDI beach -> Bondi Beach
   this.suburb = await this.suburb.split(' ').map(el => el.charAt(0).toUpperCase() + el.slice(1).toLowerCase()).join(' ');
+
+  // ex) ITALIAN or italian -> Italian
   this.cuisine = await this.cuisine.charAt(0).toUpperCase() + this.cuisine.slice(1).toLowerCase();
 });
 
