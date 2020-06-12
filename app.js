@@ -9,6 +9,7 @@ const errorHandler = require('./middleware/errorHandler');
 const app = express();
 
 const restaurantRouter = require('./routes/restaurantRoutes');
+const reviewRouter = require('./routes/reviewRoutes');
 
 // Body parser
 app.use(express.json());
@@ -22,6 +23,7 @@ if (process.env.NODE_ENV === 'development') {
 
 // ========== ROUTES ==========
 app.use('/api/restaurants', restaurantRouter);
+app.use('/api/reviews', reviewRouter);
 
 // Handle unhandled routes
 app.all('*', (req, res, next) => {

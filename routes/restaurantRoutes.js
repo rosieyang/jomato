@@ -11,9 +11,14 @@ const {
 
 const Restaurant = require('../models/restaurantModel');
 
+const reviewRouter = require('./reviewRoutes');
+
 const router = express.Router();
 
 const advancedQuery = require('../middleware/advancedQuery');
+
+// Re-route to other routers
+router.use('/:restaurantId/reviews', reviewRouter);
 
 router.get('/within/:distance/:unit/near/:latlng', getRestaurantsWithin);
 router.get('/distances-from/:latlng/unit/:unit', getDistances);
