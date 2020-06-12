@@ -42,7 +42,7 @@ const restaurantSchema = new mongoose.Schema({
     required: [true, 'Please add a suburb where a restaurant is located']
   },
   cuisine: {
-    type: String,
+    type: [String],
     required: [true, 'Please add a cuisine']
   },
   imageCover: String,
@@ -94,7 +94,7 @@ restaurantSchema.pre('save', async function () {
   this.suburb = await this.suburb.split(' ').map(el => el.charAt(0).toUpperCase() + el.slice(1).toLowerCase()).join(' ');
 
   // ex) ITALIAN or italian -> Italian
-  this.cuisine = await this.cuisine.charAt(0).toUpperCase() + this.cuisine.slice(1).toLowerCase();
+  this.cuisine = await this.cuisine.map(el => el.charAt(0).toUpperCase() + el.slice(1).toLowerCase());
 });
 
 // Create URL-friendly slug from the name before save a document
