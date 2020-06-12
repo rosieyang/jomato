@@ -9,14 +9,18 @@ const {
   getDistances
 } = require('../controllers/restaurantController');
 
+const Restaurant = require('../models/restaurantModel');
+
 const router = express.Router();
+
+const advancedQuery = require('../middleware/advancedQuery');
 
 router.get('/within/:distance/:unit/near/:latlng', getRestaurantsWithin);
 router.get('/distances-from/:latlng/unit/:unit', getDistances);
 
 router
   .route('/')
-  .get(getAllRestaurants)
+  .get(advancedQuery(Restaurant), getAllRestaurants)
   .post(createRestaurant);
 
 router

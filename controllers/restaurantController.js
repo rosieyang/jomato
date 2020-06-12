@@ -6,13 +6,7 @@ const Restaurant = require('../models/restaurantModel');
 // @route       GET /api/restaurants
 // @access      Public
 exports.getAllRestaurants = asyncHandler(async (req, res, next) => {
-  const restaurants = await Restaurant.find();
-
-  res.status(200).json({
-    status: 'success',
-    count: restaurants.length,
-    data: restaurants
-  });
+  res.status(200).json(res.advancedQuery);
 });
 
 // @desc        Get single restaurant
