@@ -60,11 +60,13 @@ exports.updateRestaurant = asyncHandler(async (req, res, next) => {
 // @route       DELETE /api/restaurants/:id
 // @access      Private (only for owner & admin)
 exports.deleteRestaurant = asyncHandler(async (req, res, next) => {
-  const restaurant = await Restaurant.findByIdAndDelete(req.params.id);
+  const restaurant = await Restaurant.findById(req.params.id);
 
   if (!restaurant) {
     return next(new AppError(`A restaurant with the id of '${req.params.id}' is not found.`, 404));
   }
+
+  restaurant.remove();
 
   res.status(200).json({
     status: 'success',

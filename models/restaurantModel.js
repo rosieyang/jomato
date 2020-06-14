@@ -121,4 +121,9 @@ restaurantSchema.pre('save', async function () {
   this.address = undefined;
 });
 
+// Delete all reviews when a restaurant is deleted
+restaurantSchema.pre('remove', async function () {
+  await this.model('Review').deleteMany({ restaurant: this._id });
+});
+
 module.exports = mongoose.model('Restaurant', restaurantSchema);
