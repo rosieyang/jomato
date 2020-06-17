@@ -69,6 +69,8 @@ exports.createReview = asyncHandler(async (req, res, next) => {
     return next(new AppError(`A restaurant with the id of '${req.body.restaurant}' is not found.`, 404));
   }
 
+  req.body.user = req.user._id;
+
   const review = await Review.create(req.body);
 
   res.status(201).json({
@@ -82,22 +84,32 @@ exports.createReview = asyncHandler(async (req, res, next) => {
 // @route       PATCH /api/restaurants/:restaurantId/reviews/:id
 // @access      Private
 exports.updateReview = asyncHandler(async (req, res, next) => {
-  if (req.params.restaurantId) {
-    const restaurant = await Restaurant.findById(req.params.restaurantId);
-
-    if (!restaurant) {
-      return next(new AppError(`A restaurant with the id of '${req.params.restaurantId}' is not found.`, 404));
-    }
-  }
-  
-  const review = await Review.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true
-  });
+  let review = await Review.findById(req.params.id);
 
   if (!review) {
     return next(new AppError(`A review with the id of '${req.params.id}' is not found.`, 404));
   }
+
+  if (req.params.restaurantId) {
+    const restaurant = await Restaurant.findById(req.params.restaurantId);
+
+    if (review.restaurant != restaurant.id) {
+      return next(new AppError(`This review doesn't belong to the restaurant '${restaurant.id}'`, 404));
+    }
+  }
+
+  // Check if this review belongs to current user
+  if (review.user != req.user.id) {
+    return next(new AppError("You're not authorized to update this review.", 401));
+  }
+
+  // To prevent from updating user field manually
+  req.body.user = req.user._id;
+
+  review = await Review.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true
+  });
 
   res.status(200).json({
     status: 'success',
@@ -110,22 +122,29 @@ exports.updateReview = asyncHandler(async (req, res, next) => {
 // @route       DELETE /api/restaurants/:restaurantId/reviews/:id
 // @access      Private
 exports.deleteReview = asyncHandler(async (req, res, next) => {
-  if (req.params.restaurantId) {
-    const restaurant = await Restaurant.findById(req.params.restaurantId);
-
-    if (!restaurant) {
-      return next(new AppError(`A restaurant with the id of '${req.params.restaurantId}' is not found.`, 404));
-    }
-  }
-
-  const review = await Review.findByIdAndDelete(req.params.id);
+  let review = await Review.findById(req.params.id);
 
   if (!review) {
     return next(new AppError(`A review with the id of '${req.params.id}' is not found.`, 404));
   }
 
+  if (req.params.restaurantId) {
+    const restaurant = await Restaurant.findById(req.params.restaurantId);
+
+    if (review.restaurant != restaurant.id) {
+      return next(new AppError(`This review doesn't belong to the restaurant '${restaurant.id}'`, 404));
+    }
+  }
+
+  // Check if this review belongs to current user or a user is admin
+  if (review.user != req.user.id && req.user.role !== 'admin') {
+    return next(new AppError("You're not authorized to delete this review.", 401));
+  }
+
+  await review.remove();
+
   res.status(200).json({
     status: 'success',
-    data: review
+    message: 'A review has been deleted successfully!'
   });
 });
