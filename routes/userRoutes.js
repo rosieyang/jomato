@@ -1,5 +1,12 @@
 const express = require('express');
 const {
+  signup,
+  login,
+  updatePassword,
+  forgotPassword,
+  resetPassword
+} = require('../controllers/authController');
+const {
   getAllUsers,
   getUser,
   createUser,
@@ -17,10 +24,20 @@ const router = express.Router();
 const advancedQuery = require('../middleware/advancedQuery');
 const { protect, restrictTo } = require('../middleware/auth');
 
-// ========== ACCOUNT DETAILS FOR USERS ==========
+// ========== USER AUTHENTICATION ==========
+
+// Public access
+router.post('/signup', signup);
+router.post('/login', login);
+router.post('/forgot-password', forgotPassword);
+router.patch('/reset-password/:resetToken', resetPassword);
 
 // Access allowed only for logged in users after this line
 router.use(protect);
+
+router.patch('/update-password', updatePassword);
+
+// ========== ACCOUNT SETTINGS FOR USERS ==========
 
 router
   .route('/me')
