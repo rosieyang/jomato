@@ -38,17 +38,29 @@ module.exports = (err, req, res, next) => {
     error.message = err.message;
 
     // if req.params.id is not in a proper format
-    if (err.name === 'CastError')
+    if (err.name === 'CastError') {
       error = new AppError(`Invalid ${error.path}: ${error.value}`, 404);
-    
+    }
+
     // if there is a duplicate key error
-    if (err.code === 11000)
+    if (err.code === 11000) {
       error = new AppError(`Duplicate name in same area: ${error.keyValue.name}. Please use another name!`, 400);
-    
+    }
+
     // if validation for model schema has failed
     if (err.name === 'ValidationError') {
       const messages = Object.values(error.errors).map(error => error.message);
       error = new AppError(`Invalid input data: ${messages.join(' / ')}`, 400);
+    }
+
+    // if JWT token is invalid
+    if (err.name === 'JsonWebTokenError') {
+      error = new AppError('Invalid token. Please log in again!', 401);
+    }
+
+    // if JWT token has expired
+    if (err.name === 'TokenExpiredError') {
+      error = new AppError('Token has expired. Please log in again!', 401);
     }
 
     sendErrorProd(error, req, res);
