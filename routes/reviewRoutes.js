@@ -12,16 +12,17 @@ const Review = require('../models/reviewModel');
 const router = express.Router({ mergeParams: true });
 
 const advancedQuery = require('../middleware/advancedQuery');
+const { protect, restrictTo } = require('../middleware/auth');
 
 router
   .route('/')
   .get(advancedQuery(Review), getAllReviews)
-  .post(createReview);
+  .post(protect, restrictTo('user'), createReview);
 
 router
   .route('/:id')
   .get(getReview)
-  .patch(updateReview)
-  .delete(deleteReview);
+  .patch(protect, restrictTo('user'), updateReview)
+  .delete(protect, restrictTo('user', 'admin'), deleteReview);
 
 module.exports = router;

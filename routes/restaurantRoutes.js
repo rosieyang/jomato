@@ -16,6 +16,7 @@ const reviewRouter = require('./reviewRoutes');
 const router = express.Router();
 
 const advancedQuery = require('../middleware/advancedQuery');
+const { protect, restrictTo } = require('../middleware/auth');
 
 // Re-route to other routers
 router.use('/:restaurantId/reviews', reviewRouter);
@@ -26,12 +27,12 @@ router.get('/distances-from/:latlng/unit/:unit', getDistances);
 router
   .route('/')
   .get(advancedQuery(Restaurant), getAllRestaurants)
-  .post(createRestaurant);
+  .post(protect, restrictTo('staff', 'owner', 'admin'), createRestaurant);
 
 router
   .route('/:id')
   .get(getRestaurant)
-  .patch(updateRestaurant)
-  .delete(deleteRestaurant);
+  .patch(protect, restrictTo('staff', 'owner', 'admin'), updateRestaurant)
+  .delete(protect, restrictTo('owner', 'admin'), deleteRestaurant);
 
 module.exports = router;
