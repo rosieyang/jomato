@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Restaurant = require('./restaurantModel');
 
 const reviewSchema = new mongoose.Schema({
   review: {
@@ -27,6 +28,37 @@ const reviewSchema = new mongoose.Schema({
     ref: 'User',
     required: [true, 'Review must belong to a user']
   }
+});
+
+// Calculate ratingsAverage & ratingsQuantity from review
+reviewSchema.statics.calcRatings = async function (restaurant) {
+  const stats = await this.aggregate([
+    {
+      $match: { restaurant }
+    },
+    {
+      $group: {
+        _id: '$restaurant',
+        avgRating: { $avg: '$rating' },
+        nRating: { $sum: 1 }
+      }
+    }
+  ]);
+
+  await Restaurant.findByIdAndUpdate(restaurant, {
+    ratingsAverage: stats.length > 0 ? stats[0].avgRating.toFixed(2) : 0,
+    ratingsQuantity: stats.length > 0 ? stats[0].nRating : 0
+  });
+}
+
+// Call calcRatings after save
+reviewSchema.post('save', function () {
+  this.constructor.calcRatings(this.restaurant);
+});
+
+// Call calcRatings after update or delete
+reviewSchema.post(/^findOneAnd/, function (doc) {
+  doc.constructor.calcRatings(doc.restaurant);
 });
 
 module.exports = mongoose.model('Review', reviewSchema);
