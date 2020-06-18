@@ -30,6 +30,9 @@ const reviewSchema = new mongoose.Schema({
   }
 });
 
+// Prevent user from writing more than one review per restaurant
+reviewSchema.index({ restaurant: 1, user: 1 }, { unique: true });
+
 // Calculate ratingsAverage & ratingsQuantity from review
 reviewSchema.statics.calcRatings = async function (restaurant) {
   const stats = await this.aggregate([
