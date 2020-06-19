@@ -13,7 +13,10 @@ exports.getAllRestaurants = asyncHandler(async (req, res, next) => {
 // @route       GET /api/restaurants/:id
 // @access      Public
 exports.getRestaurant = asyncHandler(async (req, res, next) => {
-  const restaurant = await Restaurant.findById(req.params.id);
+  const restaurant = await Restaurant.findById(req.params.id).populate({
+    path: 'reviews',
+    select: 'review rating'
+  });
 
   if (!restaurant) {
     return next(new AppError(`A restaurant with the id of '${req.params.id}' is not found.`, 404));

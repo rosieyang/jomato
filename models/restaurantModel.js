@@ -49,9 +49,7 @@ const restaurantSchema = new mongoose.Schema({
   images: [String],
   ratingsAverage: {
     type: Number,
-    min: [1, 'Rating must be above 1.0'],
-    max: [5, 'Rating must be below 5.0'],
-    default: 1
+    default: 0
   },
   ratingsQuantity: {
     type: Number,
@@ -77,12 +75,17 @@ const restaurantSchema = new mongoose.Schema({
     type: Date,
     default: Date.now(),
     select: false
-  },
-  user: {
-    type: mongoose.Schema.ObjectId,
-    ref: 'User',
-    required: true
   }
+}, {
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true }
+});
+
+restaurantSchema.virtual('reviews', {
+  ref: 'Review',
+  localField: '_id',
+  foreignField: 'restaurant',
+  options: { sort: { createdAt: -1 } }
 });
 
 // Formalize values for better consistency
