@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const AppError = require('../utils/appError');
+const sendEmail = require('../utils/sendEmail');
 const asyncHandler = require('../middleware/asyncHandler');
 const User = require('../models/userModel');
 
@@ -102,13 +103,19 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
     return next(new AppError(`User with entered email is not found`, 404));
   }
 
+  // Get reset token
   const resetToken = user.createResetPasswordToken();
   await user.save({ validateBeforeSave: false });
 
-  console.log('resetToken: ', resetToken.blue);
-
   try {
-    // TODO: Send email
+    await sendEmail({
+      email: user.email,
+      subject: 'Password Reset Token',
+      message: `Hi, ${user.name} 👋
+
+To reset password, please submit a PATCH request with your 'newPassword' and 'newPasswordConfirm' to:
+/api/users/reset-password/${resetToken}`
+    });
 
     res.status(200).json({
       status: 'success',
