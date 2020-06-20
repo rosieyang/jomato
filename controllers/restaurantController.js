@@ -143,3 +143,27 @@ exports.getDistances = asyncHandler(async (req, res, next) => {
     data: distances
   });
 });
+
+// @desc        Get aggregation for restaurants by suburb
+// @route       GET /api/restaurants/stats-by-suburb
+// @access      Public
+exports.getStatsBySuburb = asyncHandler(async (req, res, next) => {
+  const stats = await Restaurant.aggregate([
+    {
+      $group: {
+        _id: { $toUpper: '$suburb' },
+        numRestaurants: { $sum: 1 },
+        numRatings: { $sum: '$ratingsQuantity' },
+        avgRating: { $avg: '$ratingsAverage' }
+      }
+    },
+    {
+      $sort: { numRestaurants: -1, numRatings: -1, avgRating: -1 }
+    }
+  ]);
+
+  res.status(200).json({
+    status: 'success',
+    data: stats
+  });
+});

@@ -6,7 +6,8 @@ const {
   updateRestaurant,
   deleteRestaurant,
   getRestaurantsWithin,
-  getDistances
+  getDistances,
+  getStatsBySuburb
 } = require('../controllers/restaurantController');
 
 const Restaurant = require('../models/restaurantModel');
@@ -23,6 +24,7 @@ router.use('/:restaurantId/reviews', reviewRouter);
 
 router.get('/within/:distance/:unit/near/:latlng', getRestaurantsWithin);
 router.get('/distances-from/:latlng/unit/:unit', getDistances);
+router.get('/stats-by-suburb', getStatsBySuburb);
 
 router
   .route('/')
