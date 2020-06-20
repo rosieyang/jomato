@@ -9,7 +9,9 @@ const {
   getDistances,
   getStatsBySuburb,
   getStatsByCuisine,
-  getMonthlyStats
+  getMonthlyStats,
+  top5BySuburb,
+  top5ByCuisine
 } = require('../controllers/restaurantController');
 
 const Restaurant = require('../models/restaurantModel');
@@ -26,8 +28,13 @@ router.use('/:restaurantId/reviews', reviewRouter);
 
 router.get('/within/:distance/:unit/near/:latlng', getRestaurantsWithin);
 router.get('/distances-from/:latlng/unit/:unit', getDistances);
+
 router.get('/stats-by-suburb', getStatsBySuburb);
 router.get('/stats-by-cuisine', getStatsByCuisine);
+
+router.get('/top-5-by-suburb/:suburb', top5BySuburb, advancedQuery(Restaurant), getAllRestaurants);
+router.get('/top-5-by-cuisine/:cuisine', top5ByCuisine, advancedQuery(Restaurant), getAllRestaurants);
+
 router.get('/monthly-stats/:year', protect, restrictTo('owner', 'admin'), getMonthlyStats);
 
 router

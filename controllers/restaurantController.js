@@ -237,3 +237,27 @@ exports.getMonthlyStats = asyncHandler(async (req, res, next) => {
     data: { monthly }
   });
 });
+
+// @desc        Get 5 high ratings restaurants by suburb
+// @route       GET /api/restaurants/top-5-by-suburb/:suburb
+// @access      Public
+exports.top5BySuburb = (req, res, next) => {
+  req.query.suburb = req.params.suburb;
+  req.query.sort = '-ratingsAverage,-ratingsQuantity';
+  req.query.limit = '5';
+  req.query.select = 'name,cuisine,ratingsAverage,ratingsQuantity,address';
+
+  next();
+}
+
+// @desc        Get 5 high ratings restaurants by cuisine
+// @route       GET /api/restaurants/top-5-by-cuisine/:cuisine
+// @access      Public
+exports.top5ByCuisine = (req, res, next) => {
+  req.query.cuisine = { in: req.params.cuisine }
+  req.query.sort = '-ratingsAverage,-ratingsQuantity';
+  req.query.limit = '5';
+  req.query.select = 'name,suburb,ratingsAverage,ratingsQuantity,address';
+
+  next();
+}
