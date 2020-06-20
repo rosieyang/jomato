@@ -148,3 +148,45 @@ exports.deleteReview = asyncHandler(async (req, res, next) => {
     message: 'A review has been deleted successfully!'
   });
 });
+
+// @desc        Get aggregation for reviews by monthly activity
+// @route       GET /api/reviews/monthly-stats/:year
+// @access      Private
+exports.getMonthlyStats = asyncHandler(async (req, res, next) => {
+  // Convert string to number
+  const year = req.params.year * 1;
+
+  const monthly = await Review.aggregate([
+    {
+      $match: {
+        createdAt: {
+          $gte: new Date(`${year}-01-01`),
+          $lte: new Date(`${year}-12-31`)
+        }
+      }
+    },
+    {
+      $group: {
+        _id: { $month: '$createdAt' },
+        numReviewsCreated: { $sum: 1 }
+      }
+    },
+    {
+      $addFields: { month: '$_id' }
+    },
+    {
+      $project: { _id: 0 }
+    },
+    {
+      $sort: { numReviewsCreated: -1 }
+    },
+    {
+      $limit: 12
+    }
+  ]);
+
+  res.status(200).json({
+    status: 'success',
+    data: { monthly }
+  });
+});

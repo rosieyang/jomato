@@ -4,7 +4,8 @@ const {
   getReview,
   createReview,
   updateReview,
-  deleteReview
+  deleteReview,
+  getMonthlyStats
 } = require('../controllers/reviewController');
 
 const Review = require('../models/reviewModel');
@@ -13,6 +14,8 @@ const router = express.Router({ mergeParams: true });
 
 const advancedQuery = require('../middleware/advancedQuery');
 const { protect, restrictTo } = require('../middleware/auth');
+
+router.get('/monthly-stats/:year', protect, restrictTo('owner', 'admin'), getMonthlyStats);
 
 router
   .route('/')
