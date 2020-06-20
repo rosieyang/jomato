@@ -194,3 +194,46 @@ exports.getStatsByCuisine = asyncHandler(async (req, res, next) => {
     data: stats
   });
 });
+
+// @desc        Get aggregation for restaurants by monthly activity
+// @route       GET /api/restaurants/monthly-stats/:year
+// @access      Private
+exports.getMonthlyStats = asyncHandler(async (req, res, next) => {
+  // Convert string to number
+  const year = req.params.year * 1;
+
+  const monthly = await Restaurant.aggregate([
+    {
+      $match: {
+        createdAt: {
+          $gte: new Date(`${year}-01-01`),
+          $lte: new Date(`${year}-12-31`)
+        }
+      }
+    },
+    {
+      $group: {
+        _id: { $month: '$createdAt' },
+        numRestaurantsCreated: { $sum: 1 },
+        restaurants: { $push: '$name' }
+      }
+    },
+    {
+      $addFields: { month: '$_id' }
+    },
+    {
+      $project: { _id: 0 }
+    },
+    {
+      $sort: { numRestaurantCreated: -1 }
+    },
+    {
+      $limit: 12
+    }
+  ]);
+
+  res.status(200).json({
+    status: 'success',
+    data: { monthly }
+  });
+});
