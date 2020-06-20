@@ -167,3 +167,30 @@ exports.getStatsBySuburb = asyncHandler(async (req, res, next) => {
     data: stats
   });
 });
+
+// @desc        Get aggregation for restaurants by cuisine
+// @route       GET /api/restaurants/stats-by-cuisine
+// @access      Public
+exports.getStatsByCuisine = asyncHandler(async (req, res, next) => {
+  const stats = await Restaurant.aggregate([
+    {
+      $unwind: '$cuisine'
+    },
+    {
+      $group: {
+        _id: { $toUpper: '$cuisine' },
+        numRestaurants: { $sum: 1 },
+        numRatings: { $sum: '$ratingsQuantity' },
+        avgRating: { $avg: '$ratingsAverage' }
+      }
+    },
+    {
+      $sort: { numRestaurants: -1, numRatings: -1, avgRating: -1 }
+    }
+  ]);
+
+  res.status(200).json({
+    status: 'success',
+    data: stats
+  });
+});
