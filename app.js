@@ -4,6 +4,7 @@ const colors = require('colors');
 const morgan = require('morgan');
 const mongoSanitize = require('express-mongo-sanitize');
 const helmet = require('helmet');
+const xss = require('xss-clean');
 
 const AppError = require('./utils/appError');
 const errorHandler = require('./middleware/errorHandler');
@@ -29,6 +30,9 @@ app.use(mongoSanitize());
 
 // Set security HTTP headers
 app.use(helmet());
+
+// Prevent XSS attacks
+app.use(xss());
 
 // ========== ROUTES ==========
 app.use('/api/restaurants', restaurantRouter);
