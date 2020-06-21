@@ -22,6 +22,9 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
+// Sanitize user-supplied data to prevent MongoDB operator injection
+app.use(mongoSanitize());
+
 // ========== ROUTES ==========
 app.use('/api/restaurants', restaurantRouter);
 app.use('/api/reviews', reviewRouter);
