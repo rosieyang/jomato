@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const colors = require('colors');
 const morgan = require('morgan');
+const mongoSanitize = require('express-mongo-sanitize');
 
 const AppError = require('./utils/appError');
 const errorHandler = require('./middleware/errorHandler');
