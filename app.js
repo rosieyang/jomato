@@ -3,6 +3,7 @@ const express = require('express');
 const colors = require('colors');
 const morgan = require('morgan');
 const mongoSanitize = require('express-mongo-sanitize');
+const helmet = require('helmet');
 
 const AppError = require('./utils/appError');
 const errorHandler = require('./middleware/errorHandler');
@@ -25,6 +26,9 @@ if (process.env.NODE_ENV === 'development') {
 
 // Sanitize user-supplied data to prevent MongoDB operator injection
 app.use(mongoSanitize());
+
+// Set security HTTP headers
+app.use(helmet());
 
 // ========== ROUTES ==========
 app.use('/api/restaurants', restaurantRouter);
