@@ -1,27 +1,27 @@
 require('dotenv').config();
 const express = require('express');
 const colors = require('colors');
+const helmet = require('helmet');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const mongoSanitize = require('express-mongo-sanitize');
-const helmet = require('helmet');
 const xss = require('xss-clean');
-const hpp = require('hpp');
 const cors = require('cors');
+const hpp = require('hpp');
 
 const AppError = require('./utils/appError');
 const errorHandler = require('./middleware/errorHandler');
-
-const app = express();
 
 const restaurantRouter = require('./routes/restaurantRoutes');
 const reviewRouter = require('./routes/reviewRoutes');
 const userRouter = require('./routes/userRoutes');
 
-// Body parser
-app.use(express.json());
+const app = express();
 
 // ========== GLOBAL MIDDLEWARE ==========
+
+// Set security HTTP headers
+app.use(helmet());
 
 // Logger for development mode
 if (process.env.NODE_ENV === 'development') {
@@ -36,11 +36,11 @@ const limiter = rateLimit({
 });
 app.use('/api', limiter);
 
+// Body parser
+app.use(express.json());
+
 // Sanitize user-supplied data to prevent MongoDB operator injection
 app.use(mongoSanitize());
-
-// Set security HTTP headers
-app.use(helmet());
 
 // Prevent XSS attacks
 app.use(xss());
