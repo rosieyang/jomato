@@ -6,6 +6,7 @@ const rateLimit = require('express-rate-limit');
 const mongoSanitize = require('express-mongo-sanitize');
 const helmet = require('helmet');
 const xss = require('xss-clean');
+const hpp = require('hpp');
 
 const AppError = require('./utils/appError');
 const errorHandler = require('./middleware/errorHandler');
@@ -42,6 +43,12 @@ app.use(helmet());
 
 // Prevent XSS attacks
 app.use(xss());
+
+// Protect against HTTP parameter pollution attacks
+app.use(hpp({
+  // Allow specific params
+  whitelist: ['cuisine', 'suburb', 'ratingsAverage', 'ratingsQuantity']
+}));
 
 // ========== ROUTES ==========
 app.use('/api/restaurants', restaurantRouter);
