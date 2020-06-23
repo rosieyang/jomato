@@ -1,4 +1,5 @@
 require('dotenv').config();
+const path = require('path');
 const express = require('express');
 const colors = require('colors');
 const helmet = require('helmet');
@@ -18,6 +19,9 @@ const reviewRouter = require('./routes/reviewRoutes');
 const userRouter = require('./routes/userRoutes');
 
 const app = express();
+
+// Set static folder
+app.use(express.static(path.join(__dirname, 'public')));
 
 // ========== GLOBAL MIDDLEWARE ==========
 
