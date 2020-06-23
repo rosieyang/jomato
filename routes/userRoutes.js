@@ -14,7 +14,8 @@ const {
   deleteUser,
   getMe,
   updateMe,
-  deleteMe
+  deleteMe,
+  uploadPhoto
 } = require('../controllers/userController');
 
 const User = require('../models/userModel');
@@ -44,6 +45,8 @@ router
   .get(getMe)
   .patch(updateMe)
   .delete(deleteMe);
+
+router.post('/me/photo', uploadPhoto);
 
 // ========== CRUD USERS FOR ADMIN ==========
 
