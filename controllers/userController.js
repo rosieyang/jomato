@@ -85,7 +85,7 @@ exports.getMe = asyncHandler(async (req, res, next) => {
   });
 });
 
-// @desc        Update logged in user's name or email
+// @desc        Update logged in user's name/email/mobile number
 // @route       PATCH /api/users/me
 // @access      Private
 exports.updateMe = asyncHandler(async (req, res, next) => {
@@ -95,7 +95,8 @@ exports.updateMe = asyncHandler(async (req, res, next) => {
 
   const allowedBody = {
     name: req.body.name || req.user.name,
-    email: req.body.email || req.user.email
+    email: req.body.email || req.user.email,
+    mobile: req.body.mobile || req.user.mobile
   }
 
   const user = await User.findByIdAndUpdate(req.user._id, allowedBody, {
