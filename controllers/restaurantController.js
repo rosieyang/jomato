@@ -1,3 +1,4 @@
+const path = require('path');
 const AppError = require('../utils/appError');
 const asyncHandler = require('../middleware/asyncHandler');
 const Restaurant = require('../models/restaurantModel');
@@ -261,3 +262,90 @@ exports.top5ByCuisine = (req, res, next) => {
 
   next();
 }
+
+// @desc        Upload cover image of restaurant
+// @route       POST /api/restaurants/:id/cover-image
+// @access      Private
+exports.uploadCover = asyncHandler(async (req, res, next) => {
+  // Create custom filename  
+  file.name = `cover-${res.locals.restaurant._id}${path.parse(file.name).ext}`;
+
+  // Move file to server
+  file.mv(`${process.env.FILEUPLOAD_PATH}/restaurants/cover-images/${file.name}`, async err => {
+    if (err) {
+      console.error(err);
+      return next(new AppError('Error occurred uploading a file!', 500));
+    }
+
+    // Update restaurant with new imageCover
+    await Restaurant.findByIdAndUpdate(req.params.id, { imageCover: file.name });
+
+    res.status(200).json({
+      status: 'success',
+      imageCover: file.name,
+      message: 'Cover image has been saved successfully!'
+    });
+  });
+});
+
+// @desc        Upload image of restaurant
+// @route       POST /api/restaurants/:id/image
+// @access      Private
+exports.uploadImage = asyncHandler(async (req, res, next) => {
+  const imageLength = res.locals.restaurant.images.length;
+
+  if (imageLength >= 5) {
+    return next(new AppError('A restaurant can have maximum 5 images. Please delete existing images first by sending a PATCH request to a restaurant', 400));
+  }
+
+  // Create custom filename  
+  file.name = `img-${res.locals.restaurant._id}-${imageLength + 1}${path.parse(file.name).ext}`;
+
+  // Move file to server
+  file.mv(`${process.env.FILEUPLOAD_PATH}/restaurants/images/${file.name}`, async err => {
+    if (err) {
+      console.error(err);
+      return next(new AppError('Error occurred uploading a file!', 500));
+    }
+
+    // Update restaurant with new image
+    await Restaurant.findByIdAndUpdate(req.params.id, { $push: { images: file.name } });
+
+    res.status(200).json({
+      status: 'success',
+      image: file.name,
+      message: 'Image has been saved successfully!'
+    });
+  });
+});
+
+// @desc        Upload menu image of restaurant
+// @route       POST /api/restaurants/:id/menu
+// @access      Private
+exports.uploadMenu = asyncHandler(async (req, res, next) => {
+  const menuLength = res.locals.restaurant.menu.length;
+
+  if (menuLength >= 3) {
+    return next(new AppError('A restaurant can have maximum 3 menu images. Please delete existing menu first by sending a PATCH request to a restaurant', 400));
+  }
+
+  // Create custom filename  
+  file.name = `menu-${res.locals.restaurant._id}-${menuLength + 1}${path.parse(file.name).ext}`;
+
+  // Move file to server
+  file.mv(`${process.env.FILEUPLOAD_PATH}/restaurants/menus/${file.name}`, async err => {
+    if (err) {
+      console.error(err);
+      return next(new AppError('Error occurred uploading a file!', 500));
+    }
+
+    // Update restaurant with new menu
+    await Restaurant.findByIdAndUpdate(req.params.id, { $push: { menu: file.name } });
+
+    res.status(200).json({
+      status: 'success',
+      menu: file.name,
+      message: 'Menu has been saved successfully!'
+    });
+  });
+});
