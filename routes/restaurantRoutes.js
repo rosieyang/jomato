@@ -11,7 +11,10 @@ const {
   getStatsByCuisine,
   getMonthlyStats,
   top5BySuburb,
-  top5ByCuisine
+  top5ByCuisine,
+  uploadCover,
+  uploadImage,
+  uploadMenu
 } = require('../controllers/restaurantController');
 
 const Restaurant = require('../models/restaurantModel');
@@ -22,6 +25,7 @@ const router = express.Router();
 
 const advancedQuery = require('../middleware/advancedQuery');
 const { protect, restrictTo } = require('../middleware/auth');
+const { preprocessImage } = require('../middleware/preprocessImage');
 
 // Re-route to other routers
 router.use('/:restaurantId/reviews', reviewRouter);
@@ -35,8 +39,6 @@ router.get('/stats-by-cuisine', getStatsByCuisine);
 router.get('/top-5-by-suburb/:suburb', top5BySuburb, advancedQuery(Restaurant), getAllRestaurants);
 router.get('/top-5-by-cuisine/:cuisine', top5ByCuisine, advancedQuery(Restaurant), getAllRestaurants);
 
-router.get('/monthly-stats/:year', protect, restrictTo('owner', 'admin'), getMonthlyStats);
-
 router
   .route('/')
   .get(advancedQuery(Restaurant), getAllRestaurants)
@@ -47,5 +49,14 @@ router
   .get(getRestaurant)
   .patch(protect, restrictTo('staff', 'owner', 'admin'), updateRestaurant)
   .delete(protect, restrictTo('owner', 'admin'), deleteRestaurant);
+
+// Access allowed only for logged in users with specific roles after this line
+router.use(protect, restrictTo('staff', 'owner', 'admin'));
+
+router.get('/monthly-stats/:year', getMonthlyStats);
+
+router.post('/:id/cover-image', preprocessImage('cover'), uploadCover);
+router.post('/:id/image', preprocessImage('image'), uploadImage);
+router.post('/:id/menu', preprocessImage('menu'), uploadMenu);
 
 module.exports = router;
