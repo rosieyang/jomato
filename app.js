@@ -3,6 +3,7 @@ const express = require('express');
 const colors = require('colors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const fileupload = require('express-fileupload');
 const rateLimit = require('express-rate-limit');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
@@ -27,6 +28,9 @@ app.use(helmet());
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
+
+// File uploading
+app.use(fileupload());
 
 // Limit requests from same IP (max 100 requests allowed per 10 mins)
 const limiter = rateLimit({
