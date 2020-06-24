@@ -2,6 +2,7 @@ const path = require('path');
 const AppError = require('../utils/appError');
 const asyncHandler = require('../middleware/asyncHandler');
 const Restaurant = require('../models/restaurantModel');
+const User = require('../models/userModel');
 
 // @desc        Get all restaurants
 // @route       GET /api/restaurants
@@ -347,5 +348,101 @@ exports.uploadMenu = asyncHandler(async (req, res, next) => {
       menu: file.name,
       message: 'Menu has been saved successfully!'
     });
+  });
+});
+
+// @desc        Get all staff list of a restaurant
+// @route       GET /api/restaurants/:id/staff
+// @access      Private
+exports.getAllStaff = asyncHandler(async (req, res, next) => {
+  const restaurant = await Restaurant.findById(req.params.id).populate({
+    path: 'staff',
+    select: 'name email mobile id photo'
+  });
+
+  if (!restaurant) {
+    return next(new AppError(`A restaurant with the id of '${req.params.id}' is not found.`, 404));
+  }
+
+  res.status(200).json({
+    status: 'success',
+    numStaff: restaurant.staff.length,
+    staff: restaurant.staff
+  });
+});
+
+// @desc        Add staff to restaurant's staff list
+// @route       POST /api/restaurants/:id/staff
+// @access      Private
+exports.addStaff = asyncHandler(async (req, res, next) => {
+  // Check if there is a staff list in req.body
+  if (!req.body.staff) {
+    return next(new AppError("Please provide staff's id in a 'staff' field", 400));
+  }
+
+  // Convert string to array if req.body.staff is string
+  const staffList = (typeof req.body.staff === 'string') ? [req.body.staff] : req.body.staff;
+
+  // Use 'for ... of' instead of forEach to read code in sequence with async/await
+  for (const staffId of staffList) {
+    // Find staff and change their role to 'staff'
+    const staff = await User.findByIdAndUpdate(staffId, { role: 'staff' });
+
+    if (!staff) {
+      return next(new AppError(`A user with the id of '${staffId}' is not found. Make sure staff is signed up and id is correct.`, 404));
+    }
+  }
+
+  const restaurant = await Restaurant.findByIdAndUpdate(req.params.id, { $addToSet: { staff: req.body.staff } }, {
+    new: true,
+    runValidators: false
+  }).select('+staff');
+
+  if (!restaurant) {
+    return next(new AppError(`A restaurant with the id of '${req.params.id}' is not found.`, 404));
+  }
+
+  res.status(200).json({
+    status: 'success',
+    numStaff: restaurant.staff.length,
+    staff: restaurant.staff
+  });
+});
+
+// @desc        Remove staff from restaurant's staff list
+// @route       DELETE /api/restaurants/:id/staff
+// @access      Private
+exports.removeStaff = asyncHandler(async (req, res, next) => {
+  // Check if there is a staff list in req.body
+  if (!req.body.staff) {
+    return next(new AppError("Please provide staff's id in a 'staff' field", 400));
+  }
+
+  // Convert string to array if req.body.staff is string
+  const staffList = (typeof req.body.staff === 'string') ? [req.body.staff] : req.body.staff;
+
+  // Use 'for ... of' instead of forEach to read code in sequence with async/await
+  for (const staffId of staffList) {
+    // Find staff and change their role to 'user'
+    const staff = await User.findByIdAndUpdate(staffId, { role: 'user' });
+
+    if (!staff) {
+      return next(new AppError(`A user with the id of '${staffId}' is not found. Make sure staff is signed up and id is correct.`, 404));
+    }
+  }
+
+  const restaurant = await Restaurant.findByIdAndUpdate(req.params.id, { $pullAll: { staff: staffList } }, {
+    new: true,
+    runValidators: false
+  }).select('+staff');
+
+  if (!restaurant) {
+    return next(new AppError(`A restaurant with the id of '${req.params.id}' is not found.`, 404));
+  }
+
+  res.status(200).json({
+    status: 'success',
+    numStaff: restaurant.staff.length,
+    staff: restaurant.staff
   });
 });
