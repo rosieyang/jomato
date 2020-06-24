@@ -14,7 +14,10 @@ const {
   top5ByCuisine,
   uploadCover,
   uploadImage,
-  uploadMenu
+  uploadMenu,
+  getAllStaff,
+  addStaff,
+  removeStaff
 } = require('../controllers/restaurantController');
 
 const Restaurant = require('../models/restaurantModel');
@@ -30,19 +33,12 @@ const { preprocessImage } = require('../middleware/preprocessImage');
 // Re-route to other routers
 router.use('/:restaurantId/reviews', reviewRouter);
 
-router.get('/within/:distance/:unit/near/:latlng', getRestaurantsWithin);
-router.get('/distances-from/:latlng/unit/:unit', getDistances);
-
-router.get('/stats-by-suburb', getStatsBySuburb);
-router.get('/stats-by-cuisine', getStatsByCuisine);
-
-router.get('/top-5-by-suburb/:suburb', top5BySuburb, advancedQuery(Restaurant), getAllRestaurants);
-router.get('/top-5-by-cuisine/:cuisine', top5ByCuisine, advancedQuery(Restaurant), getAllRestaurants);
+// ========== CRUD RESTAURANTS ==========
 
 router
   .route('/')
   .get(advancedQuery(Restaurant), getAllRestaurants)
-  .post(protect, restrictTo('staff', 'owner', 'admin'), createRestaurant);
+  .post(protect, restrictTo('owner', 'admin'), createRestaurant);
 
 router
   .route('/:id')
@@ -50,13 +46,36 @@ router
   .patch(protect, restrictTo('staff', 'owner', 'admin'), updateRestaurant)
   .delete(protect, restrictTo('owner', 'admin'), deleteRestaurant);
 
-// Access allowed only for logged in users with specific roles after this line
-router.use(protect, restrictTo('staff', 'owner', 'admin'));
+// ========== SPECIAL QUERY ==========
 
-router.get('/monthly-stats/:year', getMonthlyStats);
+router.get('/within/:distance/:unit/near/:latlng', getRestaurantsWithin);
+router.get('/distances-from/:latlng/unit/:unit', getDistances);
+
+router.get('/stats-by-suburb', getStatsBySuburb);
+router.get('/stats-by-cuisine', getStatsByCuisine);
+router.get('/monthly-stats/:year', protect, restrictTo('owner', 'admin'), getMonthlyStats);
+
+router.get('/top-5-by-suburb/:suburb', top5BySuburb, advancedQuery(Restaurant), getAllRestaurants);
+router.get('/top-5-by-cuisine/:cuisine', top5ByCuisine, advancedQuery(Restaurant), getAllRestaurants);
+
+// ========== UPLOAD IMAGES ==========
+
+// Access allowed only for logged in users with specific roles after this line
+router.use(protect);
+router.use(restrictTo('staff', 'owner', 'admin'));
 
 router.post('/:id/cover-image', preprocessImage('cover'), uploadCover);
 router.post('/:id/image', preprocessImage('image'), uploadImage);
 router.post('/:id/menu', preprocessImage('menu'), uploadMenu);
+
+// ========== MANAGE STAFF LIST ==========
+
+router.use(restrictTo('owner', 'admin'));
+
+router
+  .route('/:id/staff')
+  .get(getAllStaff)
+  .post(addStaff)
+  .delete(removeStaff);
 
 module.exports = router;
