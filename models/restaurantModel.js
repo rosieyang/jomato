@@ -20,6 +20,14 @@ const restaurantSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Please add an address']
   },
+  staff: {
+    type: [{
+      type: mongoose.Schema.ObjectId,
+      ref: 'User'
+    }],
+    unique: true,
+    select: false
+  },
   location: {
     // GeoJSON Point
     type: {
