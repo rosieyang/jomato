@@ -43,7 +43,7 @@ router
 router
   .route('/:id')
   .get(getRestaurant)
-  .patch(protect, restrictTo('staff', 'owner', 'admin'), updateRestaurant)
+  .patch(protect, restrictTo('owner', 'admin'), updateRestaurant)
   .delete(protect, restrictTo('owner', 'admin'), deleteRestaurant);
 
 // ========== SPECIAL QUERY ==========
@@ -62,11 +62,10 @@ router.get('/top-5-by-cuisine/:cuisine', top5ByCuisine, advancedQuery(Restaurant
 
 // Access allowed only for logged in users with specific roles after this line
 router.use(protect);
-router.use(restrictTo('staff', 'owner', 'admin'));
 
-router.post('/:id/cover-image', preprocessImage('cover'), uploadCover);
-router.post('/:id/image', preprocessImage('image'), uploadImage);
-router.post('/:id/menu', preprocessImage('menu'), uploadMenu);
+router.post('/:id/cover-image', restrictTo('staff', 'owner', 'admin'), preprocessImage('cover'), uploadCover);
+router.post('/:id/image', restrictTo('staff', 'owner', 'admin'), preprocessImage('image'), uploadImage);
+router.post('/:id/menu', restrictTo('staff', 'owner', 'admin'), preprocessImage('menu'), uploadMenu);
 
 // ========== MANAGE STAFF LIST ==========
 
