@@ -48,7 +48,11 @@ const userSchema = new mongoose.Schema({
     select: false
   },
   resetPasswordToken: String,
-  resetPasswordExpires: Date
+  resetPasswordExpires: Date,
+  workAtRestaurant: {
+    type: mongoose.Schema.ObjectId,
+    ref: 'Restaurant'
+  }
 });
 
 // Hash a password before save
