@@ -385,8 +385,8 @@ exports.addStaff = asyncHandler(async (req, res, next) => {
 
   // Use 'for ... of' instead of forEach to read code in sequence with async/await
   for (const staffId of staffList) {
-    // Find staff and change their role to 'staff'
-    const staff = await User.findByIdAndUpdate(staffId, { role: 'staff' });
+    // Find staff and update their role & workAtRestaurant field
+    const staff = await User.findByIdAndUpdate(staffId, { role: 'staff', workAtRestaurant: req.params.id });
 
     if (!staff) {
       return next(new AppError(`A user with the id of '${staffId}' is not found. Make sure staff is signed up and id is correct.`, 404));
@@ -424,7 +424,7 @@ exports.removeStaff = asyncHandler(async (req, res, next) => {
   // Use 'for ... of' instead of forEach to read code in sequence with async/await
   for (const staffId of staffList) {
     // Find staff and change their role to 'user'
-    const staff = await User.findByIdAndUpdate(staffId, { role: 'user' });
+    const staff = await User.findByIdAndUpdate(staffId, { role: 'user', $unset: { workAtRestaurant: 1 } } );
 
     if (!staff) {
       return next(new AppError(`A user with the id of '${staffId}' is not found. Make sure staff is signed up and id is correct.`, 404));
