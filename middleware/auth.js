@@ -36,6 +36,11 @@ exports.restrictTo = (...roles) => {
       return next(new AppError("You're not authorized to access this route", 403));
     }
 
+    // Check if staff belongs to restaurant
+    if (req.user.role === 'staff' && req.user.workAtRestaurant != req.params.id) {
+      return next(new AppError("You're not authorized to do this for this restaurant", 403));
+    }
+
     next();
   }
 }
