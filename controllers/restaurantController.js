@@ -46,6 +46,15 @@ exports.createRestaurant = asyncHandler(async (req, res, next) => {
 // @route       PATCH /api/restaurants/:id
 // @access      Private
 exports.updateRestaurant = asyncHandler(async (req, res, next) => {
+  // Prevent from updating forbidden fields
+  if (req.body.staff) {
+    return next(new AppError('Please update staff list by using staff route instead.', 400));
+  } else if (req.body.imageCover || req.body.images || req.body.menu) {
+    return next(new AppError('Please upload images by using image route instead.', 400));
+  } else if (req.body.ratingsAverage || req.body.ratingsQuantity) {
+    return next(new AppError('Editing ratings is not allowed!', 400));
+  }
+
   const restaurant = await Restaurant.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true
