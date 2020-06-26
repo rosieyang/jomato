@@ -90,6 +90,9 @@ const restaurantSchema = new mongoose.Schema({
   toObject: { virtuals: true }
 });
 
+// Allow only one restaurant with a specific name per suburb
+restaurantSchema.index({ name: 1, suburb: 1 }, { unique: true });
+
 restaurantSchema.virtual('reviews', {
   ref: 'Review',
   localField: '_id',
