@@ -1,5 +1,3 @@
-<h1 align="center">Jomato API</h1>
-
 <p align="center">
   <img src="https://github.com/junghwayang/jomato/blob/master/jomato.png" width="600" />
 </p>
